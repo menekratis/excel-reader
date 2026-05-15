@@ -45,3 +45,25 @@ tr:nth-child(even) {
 .empty-message {
   color: #666;
 }
+
+#sheetButtons {
+  margin-bottom: 20px;
+}
+
+#sheetButtons button {
+  margin: 5px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+#sheetButtons button:hover {
+  background-color: #ccc;
+}
+
+#sheetButtons button.active {
+  background-color: #333;
+  color: white;
+}
