@@ -2,17 +2,45 @@ const fileInput = document.getElementById("fileInput");
 const tableContainer = document.getElementById("tableContainer");
 const sheetButtons = document.getElementById("sheetButtons");
 
-let workbook;
+let workbook = null;
 
-fileInput.addEventListener("change", handleFileUpload);
+window.addEventListener("DOMContentLoaded", function () {
+  loadDefaultWorkbook();
+});
 
-function handleFileUpload(event) {
+fileInput.addEventListener("change", function (event) {
   const file = event.target.files[0];
 
   if (!file) {
     return;
   }
 
+  readUploadedFile(file);
+});
+
+function loadDefaultWorkbook() {
+  if (typeof DEFAULT_WORKBOOK_DATA === "undefined") {
+    showMessage("Default data file was not found.");
+    return;
+  }
+
+  if (!DEFAULT_WORKBOOK_DATA || !DEFAULT_WORKBOOK_DATA.sheets) {
+    showMessage("Default data is empty or invalid.");
+    return;
+  }
+
+  workbook = XLSX.utils.book_new();
+
+  DEFAULT_WORKBOOK_DATA.sheets.forEach(function (sheetData) {
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData.rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetData.name);
+  });
+
+  displaySheetButtons();
+  displaySheet(workbook.SheetNames[0]);
+}
+
+function readUploadedFile(file) {
   const reader = new FileReader();
 
   reader.onload = function (event) {
@@ -22,14 +50,14 @@ function handleFileUpload(event) {
       type: "array"
     });
 
-    createSheetButtons();
+    displaySheetButtons();
     displaySheet(workbook.SheetNames[0]);
   };
 
   reader.readAsArrayBuffer(file);
 }
 
-function createSheetButtons() {
+function displaySheetButtons() {
   sheetButtons.innerHTML = "";
 
   workbook.SheetNames.forEach(function (sheetName) {
@@ -49,7 +77,6 @@ function displaySheet(sheetName) {
   const htmlTable = XLSX.utils.sheet_to_html(sheet);
 
   tableContainer.innerHTML = htmlTable;
-
   updateActiveButton(sheetName);
 }
 
@@ -63,4 +90,8 @@ function updateActiveButton(activeSheetName) {
       button.classList.remove("active");
     }
   });
+}
+
+function showMessage(message) {
+  tableContainer.innerHTML = `<p class="empty-message">${message}</p>`;
 }

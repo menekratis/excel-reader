@@ -1,0 +1,1 @@
+const DEFAULT_WORKBOOK_DATA = null;

@@ -10,16 +10,21 @@
   <main class="app">
     <h1>Excel Reader</h1>
 
+    <p class="hint">
+      The default list loads automatically. You can also upload another Excel file.
+    </p>
+
     <input type="file" id="fileInput" accept=".xlsx, .xls" />
 
     <div id="sheetButtons"></div>
 
     <div id="tableContainer">
-      <p class="empty-message">Upload an Excel file to view it here.</p>
+      <p class="empty-message">Loading default data...</p>
     </div>
   </main>
 
   <script src="libs/xlsx.full.min.js"></script>
+  <script src="default-data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

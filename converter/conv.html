@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Excel Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 500px;
+      margin-top: 20px;
+      font-family: monospace;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Excel to default-data.js Converter</h1>
+
+  <input type="file" id="fileInput" accept=".xlsx, .xls" />
+
+  <p>
+    Upload your Excel file, then copy the generated code into
+    <strong>default-data.js</strong>.
+  </p>
+
+  <div id="status"></div>
+
+  <textarea id="output"></textarea>
+
+  <script src="../libs/xlsx.full.min.js"></script>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const output = document.getElementById("output");
+    const status = document.getElementById("status");
+
+    fileInput.addEventListener("change", function (event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      status.textContent = "Reading file...";
+
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        try {
+          const data = event.target.result;
+
+          const workbook = XLSX.read(data, {
+            type: "array"
+          });
+
+          const defaultData = {
+            sheets: workbook.SheetNames.map(function (sheetName) {
+              const sheet = workbook.Sheets[sheetName];
+
+              const rows = XLSX.utils.sheet_to_json(sheet, {
+                header: 1,
+                defval: ""
+              });
+
+              return {
+                name: sheetName,
+                rows: rows
+              };
+            })
+          };
+
+          const jsCode =
+            "const DEFAULT_WORKBOOK_DATA = " +
+            JSON.stringify(defaultData, null, 2) +
+            ";";
+
+          output.value = jsCode;
+
+          status.textContent =
+            "Conversion complete. Copy the text below into default-data.js.";
+        } catch (error) {
+          console.error(error);
+          status.textContent =
+            "Error during conversion. Open the browser console (F12) for details.";
+        }
+      };
+
+      reader.onerror = function () {
+        status.textContent = "Could not read the file.";
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+</html>
